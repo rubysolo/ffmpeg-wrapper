@@ -11,14 +11,38 @@ module FFMpeg
     def execute
       # usage: ffmpeg [options] [[infile options] -i infile]...
       #                         {[outfile options] outfile}...
-      cmd = %Q{ffmpeg -i #{ input } #{ output }}
-      puts cmd
+
+      cmd = if @options[:offset]
+        offset_command
+      else
+        "ffmpeg -i #{ input } #{ output }"
+      end
 
       IO.popen([*cmd.split(/\s+/), :err=>[:child, :out]]) do |out|
         while line = out.gets
           process_output_line(line)
         end
       end
+    end
+
+    def offset_command
+      # start with just our input video
+      cmd = "ffmpeg -i #{ input }"
+      # add the amount of shift required (direction doesn't matter yet)
+      cmd << " -itsoffset #{ to_hms @options[:offset].abs }"
+      # reference our input file again to get the other track
+      cmd << " -i #{ input }"
+
+      if @options[:offset] > 0
+        # shift audio forward by :offset seconds
+        # TODO : determine correct stream for audio/video
+        cmd << " -map 0:0 -map 1:1"
+      else
+        # shift video forward by :offset seconds
+        cmd << " -map 1:1 -map 0:0"
+      end
+
+      cmd
     end
 
     def progress
@@ -66,6 +90,13 @@ module FFMpeg
       end
     end
 
+    def to_hms(seconds)
+      seconds, ms      = seconds.divmod 1
+      minutes, seconds = seconds.divmod 60
+      hours, minutes   = minutes.divmod 60
+
+      '%02d:%02d:%02d.%03d' % [hours, minutes, seconds, ms.round(10) * 1000]
+    end
 
     def parse_hms(hmsms)
       hms, ms = hmsms.split('.')

@@ -33,4 +33,18 @@ class TestFFMPegConvert < Test::Unit::TestCase
     c.send(:process_output_line, "frame=   30 fps=  0 q=2.0 Lsize=     210kB time=2.49 bitrate= 345.6kbits/s    ")
     assert_equal 0.5, c.progress
   end
+
+  def test_offset_command
+    c = FFMpeg::Convert.new("foo", "bar", :offset => 5.3)
+    cmd = c.offset_command
+
+    assert_match %r{-itsoffset 00:00:05.300}, cmd
+    assert_match %r{-map 0:0 -map 1:1}, cmd
+
+    c = FFMpeg::Convert.new("foo", "bar", :offset => -83)
+    cmd = c.offset_command
+
+    assert_match %r{-itsoffset 00:01:23.000}, cmd
+    assert_match %r{-map 1:1 -map 0:0}, cmd
+  end
 end
