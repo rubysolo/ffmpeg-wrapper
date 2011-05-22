@@ -15,10 +15,10 @@ module FFMpeg
       cmd = if @options[:offset]
         offset_command
       else
-        %Q{ffmpeg -i "#{ input }" "#{ output }"}
+        ["ffmpeg", "-i", input, output]
       end
 
-      IO.popen([*cmd.split(/\s+/), :err=>[:child, :out]]) do |out|
+      IO.popen([*cmd, :err=>[:child, :out]]) do |out|
         while line = out.gets
           process_output_line(line)
         end
@@ -27,23 +27,25 @@ module FFMpeg
 
     def offset_command
       # start with just our input video
-      cmd = %Q{ffmpeg -i "#{ input }"}
+      cmd = ["ffmpeg", "-i", input]
+
       # add the amount of shift required (direction doesn't matter yet)
-      cmd << " -itsoffset #{ to_hms @options[:offset].abs }"
+      cmd += ["-itsoffset", to_hms(@options[:offset].abs)]
+
       # reference our input file again to get the other track
-      cmd << %Q{ -i "#{ input }"}
+      cmd += ["-i", input]
 
       if @options[:offset] > 0
         # shift audio forward by :offset seconds
         # TODO : this assumes input file has one video and one audio stream.
         # add a way to determine input content and map streams appropriately
-        cmd << " -map 0:0 -map 1:1"
+        cmd += %w(-map 0:0 -map 1:1)
       else
         # shift video forward by :offset seconds
-        cmd << " -map 1:0 -map 0:1"
+        cmd += %w(-map 1:0 -map 0:1)
       end
 
-      cmd << %Q{ "#{ output }"}
+      cmd << output
 
       cmd
     end
