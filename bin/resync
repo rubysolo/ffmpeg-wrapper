@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+
+require 'ffmpeg'
+
+offset = ARGV.shift
+input  = ARGV.shift
+
+if offset.nil? || input .nil?
+  puts "Usage #{ $0 } offset filename.mov"
+  exit 1
+end
+
+output = input.gsub(/\.mov/i, '-fixed.mov')
+offset = offset.to_i
+
+FFMpeg.convert(input, output, :offset => offset)
