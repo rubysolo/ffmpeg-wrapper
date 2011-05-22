@@ -14,6 +14,14 @@ class TestFFMPegConvert < Test::Unit::TestCase
   def test_ffmpeg_execution
     assert_nothing_raised {
       FFMpeg.convert("test/fixtures/input.mov", "test/output.flv")
+      assert File.exist?("test/output.flv")
+    }
+  end
+
+  def test_filenames_with_spaces
+    assert_nothing_raised {
+      FFMpeg.convert("test/fixtures/filename with spaces.mov", "test/output.flv")
+      assert File.exist?("test/output.flv")
     }
   end
 
