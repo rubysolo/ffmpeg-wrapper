@@ -8,7 +8,7 @@ Ruby wrapper around ffmpeg CLI to resync audio and video
 
 usage:
 
-  resync 5 nsync.mov
+    resync 5 nsync.mov
 
 This will push the audio track five seconds forward and write the result
 to *nsync-fixed.mov*
