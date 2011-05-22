@@ -12,7 +12,9 @@ class TestFFMPegConvert < Test::Unit::TestCase
   end
 
   def test_ffmpeg_execution
-    FFMpeg.convert("test/fixtures/input.mov", "test/output.flv")
+    assert_nothing_raised {
+      FFMpeg.convert("test/fixtures/input.mov", "test/output.flv")
+    }
   end
 
   def test_process_output
