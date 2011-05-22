@@ -11,6 +11,6 @@ if offset.nil? || input .nil?
 end
 
 output = input.gsub(/\.mov/i, '-fixed.mov')
-offset = offset.to_i
+offset = offset.to_f
 
 FFMpeg.convert(input, output, :offset => offset)
