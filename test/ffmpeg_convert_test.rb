@@ -47,6 +47,6 @@ class TestFFMPegConvert < Test::Unit::TestCase
     cmd = c.offset_command
 
     assert_match %r{-itsoffset 00:01:23.000}, cmd
-    assert_match %r{-map 1:1 -map 0:0}, cmd
+    assert_match %r{-map 1:0 -map 0:1}, cmd
   end
 end
