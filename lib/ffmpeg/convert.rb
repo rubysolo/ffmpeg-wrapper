@@ -42,6 +42,8 @@ module FFMpeg
         cmd << " -map 1:1 -map 0:0"
       end
 
+      cmd << " #{ output }"
+
       cmd
     end
 
