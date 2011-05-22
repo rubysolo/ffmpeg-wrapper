@@ -2,9 +2,13 @@
 
 Ruby wrapper around ffmpeg CLI to resync audio and video
 
+## INCLUDED UTILITIES
 
-ffmpeg -i out.ogg -itsoffset 4.267 -i out.ogg -map 1:0 -map 0:1 -ar 22050 video.flv
+* resync : shift the audio track of a movie file forward or backward
 
-also check out:
+usage:
 
-ffmpeg -async
+  resync 5 nsync.mov
+
+This will push the audio track five seconds forward and write the result
+to *nsync-fixed.mov*
