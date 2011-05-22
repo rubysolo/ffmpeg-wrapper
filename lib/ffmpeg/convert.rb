@@ -35,11 +35,12 @@ module FFMpeg
 
       if @options[:offset] > 0
         # shift audio forward by :offset seconds
-        # TODO : determine correct stream for audio/video
+        # TODO : this assumes input file has one video and one audio stream.
+        # add a way to determine input content and map streams appropriately
         cmd << " -map 0:0 -map 1:1"
       else
         # shift video forward by :offset seconds
-        cmd << " -map 1:1 -map 0:0"
+        cmd << " -map 1:0 -map 0:1"
       end
 
       cmd << " #{ output }"
