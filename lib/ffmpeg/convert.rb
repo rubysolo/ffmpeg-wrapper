@@ -1,6 +1,6 @@
 module FFMpeg
   class Convert
-    attr_accessor :input, :output, :version, :frame, :total_time, :total_frames
+    attr_reader :version, :total_time, :frame, :total_frames
 
     def initialize(input, output, options={})
       @input   = input
@@ -15,7 +15,7 @@ module FFMpeg
       cmd = if @options[:offset]
         offset_command
       else
-        ["ffmpeg", "-i", input, output]
+        ["ffmpeg", "-i", @input, @output]
       end
 
       IO.popen([*cmd, :err=>[:child, :out]]) do |out|
@@ -27,13 +27,13 @@ module FFMpeg
 
     def offset_command
       # start with just our input video
-      cmd = ["ffmpeg", "-i", input]
+      cmd = ["ffmpeg", "-i", @input]
 
       # add the amount of shift required (direction doesn't matter yet)
       cmd += ["-itsoffset", to_hms(@options[:offset].abs)]
 
       # reference our input file again to get the other track
-      cmd += ["-i", input]
+      cmd += ["-i", @input]
 
       if @options[:offset] > 0
         # shift audio forward by :offset seconds
@@ -45,7 +45,7 @@ module FFMpeg
         cmd += %w(-map 1:0 -map 0:1)
       end
 
-      cmd << output
+      cmd << @output
 
       cmd
     end
