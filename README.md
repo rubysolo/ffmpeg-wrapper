@@ -1,6 +1,26 @@
 # FFMPEG WRAPPER
 
-Ruby wrapper around ffmpeg CLI to resync audio and video
+Ruby wrapper around ffmpeg CLI for video conversion
+
+
+## RUBY API
+
+For simple format conversions, simply specify the input and output
+filenames:
+
+    FFMpeg.convert("input.flv", "output.mov")
+
+To control the output, pass an options hash:
+
+    FFMpeg.convert("input.flv", "output.mp4", :offset => 5)
+
+Currently, the only option supported is *offset*.  :)
+
+
+## DEPENDENCIES
+
+* ffmpeg binary in your PATH
+
 
 ## INCLUDED UTILITIES
 
