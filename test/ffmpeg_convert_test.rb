@@ -73,4 +73,15 @@ class TestFFMPegConvert < Test::Unit::TestCase
     assert_match %r{-itsoffset 00:01:23.000}, cmd
     assert_match %r{-map 1:0 -map 0:1}, cmd
   end
+
+  def test_custom_ffmpeg_command_from_ENV
+    before = ENV['FFMPEG']
+    ENV['FFMPEG'] = nil
+
+    assert_equal 'ffmpeg', FFMpeg::Convert.base_command
+    ENV['FFMPEG'] = `which ffmpeg`
+
+    assert_not_equal 'ffmpeg', FFMpeg::Convert.base_command
+    ENV['FFMPEG'] = before
+  end
 end

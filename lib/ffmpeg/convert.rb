@@ -8,6 +8,10 @@ module FFMpeg
       @options = options
     end
 
+    def self.base_command
+      ENV['FFMPEG'] || 'ffmpeg'
+    end
+
     def execute
       # usage: ffmpeg [options] [[infile options] -i infile]...
       #                         {[outfile options] outfile}...
