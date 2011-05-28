@@ -6,10 +6,26 @@ module FFMpeg
       @input   = input
       @output  = output
       @options = options
+
+      failure_msg = "FATAL:  cannot find ffmpeg command"
+      failure_msg << " (#{ self.class.base_command })"
+
+      self.class.system_command(failure_msg) do
+        cmd = "#{ self.class.base_command } --version 2> /dev/null"
+        system cmd
+      end
     end
 
     def self.base_command
       ENV['FFMPEG'] || 'ffmpeg'
+    end
+
+    def self.system_command(message)
+      begin
+        yield
+      rescue Errno::ENOENT => e
+        raise message
+      end
     end
 
     def execute
@@ -19,19 +35,22 @@ module FFMpeg
       cmd = if @options[:offset]
         offset_command
       else
-        ["ffmpeg", "-i", @input, @output]
+        [self.class.base_command, "-i", @input, @output]
       end
 
-      IO.popen([*cmd, :err=>[:child, :out]]) do |out|
-        while line = out.gets
-          process_output_line(line)
+
+      self.class.system_command("could not find #{ self.class.base_command }") do
+        IO.popen([*cmd, :err=>[:child, :out]]) do |out|
+          while line = out.gets
+            process_output_line(line)
+          end
         end
       end
     end
 
     def offset_command
       # start with just our input video
-      cmd = ["ffmpeg", "-i", @input]
+      cmd = [self.class.base_command, "-i", @input]
 
       # add the amount of shift required (direction doesn't matter yet)
       cmd += ["-itsoffset", to_hms(@options[:offset].abs)]

@@ -75,13 +75,32 @@ class TestFFMPegConvert < Test::Unit::TestCase
   end
 
   def test_custom_ffmpeg_command_from_ENV
-    before = ENV['FFMPEG']
-    ENV['FFMPEG'] = nil
+    with_custom_ffmpeg do
+      assert_equal 'ffmpeg', FFMpeg::Convert.base_command
 
-    assert_equal 'ffmpeg', FFMpeg::Convert.base_command
-    ENV['FFMPEG'] = `which ffmpeg`
+      with_custom_ffmpeg(`which ffmpeg`) do
+        assert_not_equal 'ffmpeg', FFMpeg::Convert.base_command
+      end
+    end
+  end
 
-    assert_not_equal 'ffmpeg', FFMpeg::Convert.base_command
-    ENV['FFMPEG'] = before
+  def test_catching_missing_ffmpeg_binary
+    with_custom_ffmpeg('frabshackle') do
+      assert_not_equal 'ffmpeg', FFMpeg::Convert.base_command
+
+      assert_raises(RuntimeError) {
+        FFMpeg.convert("in", "out")
+      }
+    end
+  end
+
+  private
+
+  def with_custom_ffmpeg(ffmpeg=nil)
+    original = ENV['FFMPEG']
+    ffmpeg = ffmpeg.strip unless ffmpeg.nil?
+    ENV['FFMPEG'] = ffmpeg
+    yield
+    ENV['FFPMEG'] = original
   end
 end
