@@ -22,6 +22,14 @@ Currently, the only option supported is *offset*.  :)
 * ffmpeg binary in your PATH
 
 
+## CUSTOM FFMPEG
+
+If you do not have an ffmpeg binary in your path, you can set the
+FFMPEG environment variable to the full path to ffmpeg:
+
+    export FFMPEG=/opt/custom/bin/ffmpeg
+
+
 ## INCLUDED UTILITIES
 
 * resync : shift the audio track of a movie file forward or backward
