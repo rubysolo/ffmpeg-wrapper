@@ -1,6 +1,7 @@
 module FFMpeg
   class Convert
-    attr_reader :version, :total_time, :frame, :total_frames
+    attr_accessor :version, :total_time, :frame, :total_frames, :capturing,
+                  :input_fps
 
     def initialize(input, output, options={})
       @input   = input
@@ -88,34 +89,9 @@ module FFMpeg
 
     private
 
-    HMS = '\d{2}:\d{2}:\d{2}\.\d{2}'
 
     def process_output_line(line)
-      case line
-      when /^ffmpeg version ([^,]+), copyright/i
-        @version = $1
-
-      when /^input.*from/i
-        @capturing = :input
-
-      when /^output.*to/i
-        @capturing = :output
-
-      when /Press \[q\] to stop encoding/
-        @capturing = :progress
-
-      when /^\s*duration: (#{ HMS })/i
-        @total_time = parse_hms($1) if capturing_input?
-
-      when /^\s*stream.*video:.*\s+([0-9.]+)\s*fps/i
-        if capturing_input?
-          @input_fps = $1.to_f
-          @total_frames = @input_fps * @total_time
-        end
-
-      when /^frame=\s*(\d+)/i
-        @frame = $1.to_i
-      end
+      OutputProcessor.process(self, line)
     end
 
     def to_hms(seconds)
@@ -124,12 +100,6 @@ module FFMpeg
       hours, minutes   = minutes.divmod 60
 
       '%02d:%02d:%02d.%03d' % [hours, minutes, seconds, ms.round(10) * 1000]
-    end
-
-    def parse_hms(hmsms)
-      hms, ms = hmsms.split('.')
-      h, m, s = hms.split(':')
-      s.to_i + (m.to_i * 60) + (h.to_i * 3600) + "0.#{ ms }".to_f
     end
   end
 
